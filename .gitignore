@@ -9,3 +9,13 @@ wheels/
 # Virtual environments
 .venv
 .idea
+
+# Interviewdata — NOOIT committen
+raw/
+transcripts/
+entities/
+output/
+mapping.csv
+*.vtt
+*.mp4
+*.docx
