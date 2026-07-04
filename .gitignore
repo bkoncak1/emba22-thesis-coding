@@ -12,10 +12,15 @@ wheels/
 
 # Interviewdata — NOOIT committen
 raw/
+input/
 transcripts/
 entities/
 output/
 mapping.csv
+mapping*.csv
+*.md
+!PLAN.md
+!README.md
 *.vtt
 *.mp4
 *.docx
