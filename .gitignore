@@ -19,3 +19,6 @@ mapping.csv
 *.vtt
 *.mp4
 *.docx
+
+# Systeem
+.DS_Store
