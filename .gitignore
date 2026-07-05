@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.idea
+
+# Interviewdata — NOOIT committen
+raw/
+input/
+transcripts/
+entities/
+output/
+mapping.csv
+mapping*.csv
+*.md
+!PLAN.md
+!README.md
+*.vtt
+*.mp4
+*.docx
+
+# Systeem
+.DS_Store
