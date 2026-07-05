@@ -19,6 +19,9 @@ Vereisten: Python 3.13, [uv](https://docs.astral.sh/uv/), en
 [pandoc](https://pandoc.org/) (voor stap 7).
 
 ```bash
+# maak een virtual environment
+uv venv
+
 # Python-dependencies (spaCy) in de projectvenv
 uv sync
 
@@ -64,23 +67,23 @@ Whisper.cpp is een **fallback**, geen standaardstap — alleen bouwen als de pil
 ### End-to-end voorbeeld
 
 ```bash
-PY=.venv/bin/python
+source .venv/bin/activate
 
 # 1. VTT → markdown (toon eerste 20 beurten voor de pilot)
-$PY scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
+uv run scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
 
 # 3. transcripts/i01.md handmatig corrigeren tegen de audio
 
 # 4. Kandidatenlijst identificatoren
-$PY scripts/find_entities.py transcripts/i01.md
+uv run scripts/find_entities.py transcripts/i01.md
 
 # 5. entities/entities_i01.csv reviewen en aanvullen, daarna verwerken in mapping.csv
 
 # 6. Pseudonimiseren (+ automatische restscan)
-$PY scripts/pseudonymize.py transcripts/i01.md --mapping "mapping/mapping.csv"
+uv run scripts/pseudonymize.py transcripts/i01.md --mapping "mapping/mapping.csv"
 
 # 7. Export naar docx voor Atlas.ti
-$PY scripts/export_docx.py output/i01_pseudo.md
+uv run scripts/export_docx.py output/i01_pseudo.md
 ```
 
 ## Scripts
