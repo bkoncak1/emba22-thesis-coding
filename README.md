@@ -9,7 +9,7 @@ Nederlandstalige interviews). Het volledige plan en de motivatie staan in
 [`PLAN.md`](PLAN.md); dit bestand is de praktische handleiding.
 
 > ⚠️ **Privacy eerst.** Deze repo verwerkt persoonsgegevens. Lees eerst
-> [Privacyregels](#privacyregels). `raw/`, `input/`, `transcripts/`,
+> [Privacyregels](#privacyregels). `raw/`, `transcripts/`,
 > `entities/`, `output/` en elke `mapping*.csv` staan in `.gitignore` en mogen
 > **nooit** gecommit of gedeeld worden.
 
@@ -36,16 +36,13 @@ Draai de scripts met de venv-interpreter, bijv. `.venv/bin/python scripts/...`
 
 ```
 thesis-coding/
-├── scripts/        # de pijplijnscripts (wél in git)
-├── raw/            # originele .vtt/.docx/.mp4 — NOOIT wijzigen, niet in git
-├── input/          # werkbestanden / handmatig bewerkte transcripts — niet in git
+├── scripts/        # de pijplijnscripts
+├── raw/            # originele .vtt/.docx/.mp4
+├── mapping/        # de vertaalde namen
 ├── transcripts/    # markdown, gecorrigeerd, echte namen — niet in git
 ├── entities/       # kandidatenlijsten per interview — niet in git
 └── output/         # gepseudonimiseerde transcripts + docx — niet in git
 ```
-
-De centrale `mapping.csv` staat **buiten** deze projectmap, op een beveiligde
-locatie, en wordt als CLI-argument meegegeven.
 
 ## De pijplijn
 
@@ -68,23 +65,22 @@ Whisper.cpp is een **fallback**, geen standaardstap — alleen bouwen als de pil
 
 ```bash
 PY=.venv/bin/python
-MAP=~/beveiligd/mapping.csv        # buiten de repo
 
 # 1. VTT → markdown (toon eerste 20 beurten voor de pilot)
-$PY scripts/vtt_to_md.py raw/l01.vtt -o transcripts/l01.md --preview 20
+$PY scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
 
-# 3. transcripts/l01.md handmatig corrigeren tegen de audio
+# 3. transcripts/i01.md handmatig corrigeren tegen de audio
 
 # 4. Kandidatenlijst identificatoren
-$PY scripts/find_entities.py transcripts/l01.md          # → entities/entities_l01.csv
+$PY scripts/find_entities.py transcripts/i01.md
 
-# 5. entities/entities_l01.csv reviewen en aanvullen, daarna verwerken in mapping.csv
+# 5. entities/entities_i01.csv reviewen en aanvullen, daarna verwerken in mapping.csv
 
 # 6. Pseudonimiseren (+ automatische restscan)
-$PY scripts/pseudonymize.py transcripts/l01.md --mapping "$MAP"   # → output/l01_pseudo.md
+$PY scripts/pseudonymize.py transcripts/i01.md --mapping "mapping/mapping.csv"
 
 # 7. Export naar docx voor Atlas.ti
-$PY scripts/export_docx.py output/l01_pseudo.md          # → output/l01_pseudo.docx
+$PY scripts/export_docx.py output/i01_pseudo.md
 ```
 
 ## Scripts
@@ -119,7 +115,7 @@ markdowntranscript met spaCy (`nl_core_news_lg`). Sprekerlabels worden
 meegenomen als PERSON.
 
 ```bash
-python scripts/find_entities.py transcripts/l01.md      # → entities/entities_l01.csv
+python scripts/find_entities.py transcripts/i01.md
 ```
 
 Output-CSV: `entiteit, type, aantal_voorkomens, voorbeeldzin`, gededupliceerd en
@@ -134,7 +130,7 @@ Vervangt echte namen (en varianten) door pseudoniemen op basis van een
 mappingtabel, en draait daarna een verificatierapport met restscan.
 
 ```bash
-python scripts/pseudonymize.py transcripts/l01.md --mapping ~/beveiligd/mapping.csv
+python scripts/pseudonymize.py transcripts/i01.md --mapping mapping/mapping.csv
 ```
 
 `mapping.csv`-kolommen: `echte_naam, varianten, pseudoniem, type`.
@@ -155,7 +151,7 @@ Converteert een gepseudonimiseerd transcript naar `.docx` via pandoc, met behoud
 van het sprekerformat zodat Atlas.ti per spreker kan auto-coderen.
 
 ```bash
-python scripts/export_docx.py output/l01_pseudo.md      # → output/l01_pseudo.docx
+python scripts/export_docx.py output/i01_pseudo.md
 ```
 
 Weigert input die niet op `_pseudo.md` eindigt (override met `--force`). Importeer
@@ -178,13 +174,12 @@ krijgt grovere blokken terug.
 
 Hard, niet-onderhandelbaar:
 
-- **`mapping.csv` staat buiten de projectmap** en wordt nooit gesynct of gedeeld.
-- **`raw/` en `transcripts/` verlaten deze machine niet.**
+- **`mapping/`, `raw/` en `transcripts/` verlaten deze machine niet.**
 - Alleen bestanden uit **`output/`** mogen gedeeld worden, en pas **nadat de
   restscan uit stap 6 schoon is**.
 - **Geen transcripts (ook geen fragmenten) naar externe API's of clouddiensten.**
   Alle scripts draaien volledig lokaal.
-- `raw/`, `input/`, `transcripts/`, `entities/`, `output/` en `mapping*.csv` staan
+- `raw/`, `transcripts/`, `entities/`, `output/` en `mapping*.csv` staan
   in `.gitignore`. Nieuwe documentatie-`.md` wordt standaard ook genegeerd; voeg
   een `!bestand.md`-regel toe om die wél te committen.
 
