@@ -5,7 +5,7 @@ Vervangt echte namen (en varianten) in een gecorrigeerd markdowntranscript door
 pseudoniemen, op basis van een centrale mappingtabel. Draait daarna een
 verificatierapport met een restscan (find_entities.py) over de output.
 
-PRIVACY: de mappingtabel staat BUITEN de projectmap en wordt als CLI-argument
+PRIVACY: de mappingtabel in de projectmap mapping en wordt als CLI-argument
 meegegeven. Het origineel blijft onaangeroerd; er wordt een nieuw bestand
 geschreven in de outputmap.
 
@@ -22,7 +22,7 @@ Vervangingsregels:
   - sprekerkoppen (**Naam**) worden meegenomen (staan gewoon in de tekst).
 
 CLI:
-    python pseudonymize.py transcript.md --mapping /pad/buiten/repo/mapping.csv
+    python pseudonymize.py transcript.md --mapping mapping/mapping.csv
     python pseudonymize.py transcript.md --mapping map.csv -o output/l01_pseudo.md
     python pseudonymize.py transcript.md --mapping map.csv --no-restscan
 """
@@ -191,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
         "--mapping",
         type=Path,
         required=True,
-        help="pad naar mapping.csv (BUITEN de projectmap)",
+        help="pad naar mapping.csv",
     )
     parser.add_argument(
         "-o",

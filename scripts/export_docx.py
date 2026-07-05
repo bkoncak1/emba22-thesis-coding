@@ -12,9 +12,9 @@ Alleen bestanden uit output/ mogen gedeeld worden. Geen audio-import in Atlas.ti
 Vereist: pandoc (brew install pandoc).
 
 CLI:
-    python export_docx.py output/l01_pseudo.md
-    python export_docx.py output/l01_pseudo.md -o output/l01_pseudo.docx
-    python export_docx.py output/l01_pseudo.md --reference-doc stijl.docx
+    python export_docx.py output/i01_pseudo.md
+    python export_docx.py output/i01_pseudo.md -o output/i01_pseudo.docx
+    python export_docx.py output/i01_pseudo.md --reference-doc stijl.docx
 """
 
 from __future__ import annotations
