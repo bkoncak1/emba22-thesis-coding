@@ -78,6 +78,7 @@ uv run scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
 uv run scripts/find_entities.py transcripts/i01.md
 
 # 5. entities/entities_i01.csv reviewen en aanvullen, daarna verwerken in mapping.csv
+uv run scripts/build_mapping.py
 
 # 6. Pseudonimiseren (+ automatische restscan)
 uv run scripts/pseudonymize.py transcripts/i01.md --mapping "mapping/mapping.csv"
