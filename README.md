@@ -93,7 +93,7 @@ uv run scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
 # 2. transcripts controleren met behulp van Python en local LLM
 uv run scripts/compare_transcripts.py transcripts/i01.md raw/i01-cpp.txt -o qc/i01
 ollama run transcheck < qc/i01_diff.md > qc/i01_review.md
-uv run scripts/merge_whisper.py transcripts/i01.md raw/i01_whisper.txt
+uv run scripts/merge_whisper.py transcripts/i01.md raw/i01-cpp.txt
 
 # 3. transcripts/i01_gecorrigeerd.md + transcripts/i01_gemarkeerd.md handmatig corrigeren tegen de audio
 
