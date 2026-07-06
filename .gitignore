@@ -16,6 +16,7 @@ input/
 transcripts/
 entities/
 output/
+qc/
 mapping.csv
 mapping*.csv
 *.md
