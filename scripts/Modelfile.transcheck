@@ -7,9 +7,7 @@
 # prioriteren. Het harde percentage (WER/gelijkenis) komt uit het script —
 # LLM's kunnen niet betrouwbaar tellen; dit model oordeelt alleen.
 #
-# Zelfde basismodel als Modelfile.gioia — geen extra download nodig.
-#
-# Bouwen:
+§# Bouwen:
 #   ollama create transcheck -f Modelfile.transcheck
 #
 # Draaien (per interview):

@@ -93,20 +93,21 @@ uv run scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
 # 2. transcripts controleren met behulp van Python en local LLM
 uv run scripts/compare_transcripts.py transcripts/i01.md raw/i01-cpp.txt -o qc/i01
 ollama run transcheck < qc/i01_diff.md > qc/i01_review.md
+uv run scripts/merge_whisper.py transcripts/i01.md raw/i01_whisper.txt
 
-# 3. transcripts/i01.md handmatig corrigeren tegen de audio
+# 3. transcripts/i01_gecorrigeerd.md + transcripts/i01_gemarkeerd.md handmatig corrigeren tegen de audio
 
 # 4. Kandidatenlijst identificatoren
-uv run scripts/find_entities.py transcripts/i01.md
+uv run scripts/find_entities.py transcripts/i01_gecorrigeerd.md
 
 # 5. entities/entities_i01.csv reviewen en aanvullen, daarna verwerken in mapping.csv
 uv run scripts/build_mapping.py
 
 # 6. Pseudonimiseren (+ automatische restscan)
-uv run scripts/pseudonymize.py transcripts/i01.md --mapping "mapping/mapping.csv"
+uv run scripts/pseudonymize.py transcripts/i01_gecorrigeerd.md --mapping "mapping/mapping.csv"
 
 # 7. Export naar docx voor Atlas.ti
-uv run scripts/export_docx.py output/i01_pseudo.md
+uv run scripts/export_docx.py output/i01_gecorrigeerd_pseudo.md
 ```
 
 ## Scripts
