@@ -19,6 +19,7 @@ output/
 qc/
 mapping.csv
 mapping*.csv
+mapping*.xlsx
 *.md
 !PLAN.md
 !README.md
