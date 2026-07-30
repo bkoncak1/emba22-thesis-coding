@@ -12,7 +12,7 @@ Wat het script doet:
   - HTML-artefacten opschonen (bijv. "&#199;" -> "Ç");
   - varianten conservatief groeperen: een naam waarvan de tokens een echte
     deelverzameling zijn van een andere naam wordt als variant daaronder gehangen
-    (bijv. "Lucien" onder "Lucien van den Enden", "Henk" onder "Henk Samson");
+    (bijv. "Bekir" onder "Bekir Koncak");
   - de interviewer (standaard "Bekir Koncak") herkennen en pseudoniem "Bekir"
     geven — die blijft behouden, niet vervangen (zie PLAN, stap 6);
   - overige personen pseudoniem P1, P2, ... geven op aflopende frequentie;
