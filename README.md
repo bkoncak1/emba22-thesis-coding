@@ -15,7 +15,7 @@ Nederlandstalige interviews). Het volledige plan en de motivatie staan in
 
 ## Installatie
 
-Vereisten: Python 3.13, [uv](https://docs.astral.sh/uv/), en
+Vereisten: [ollama v0.31.1](https://ollama.com/), Python 3.13, [uv](https://docs.astral.sh/uv/), en
 [pandoc](https://pandoc.org/) (voor stap 7).
 
 ```bash
@@ -30,6 +30,22 @@ uv pip install "https://github.com/explosion/spacy-models/releases/download/nl_c
 
 # pandoc (macOS)
 brew install pandoc
+
+# eenmalig, als Ollama er nog niet op staat (macOS)
+brew install ollama
+
+# Ollama-server starten (of de Ollama-app openen)
+ollama serve
+
+# het model binnenhalen (~39 GB)
+ollama pull qwen3.6:35b-a3b-q8_0
+
+# controleren
+ollama list
+ollama show qwen3.6:35b-a3b-q8_0
+
+# model creeren
+ollama create transcheck -f Modelfile.transcheck
 ```
 
 Draai de scripts met de venv-interpreter, bijv. `.venv/bin/python scripts/...`
@@ -44,6 +60,7 @@ thesis-coding/
 ├── mapping/        # de vertaalde namen
 ├── transcripts/    # markdown, gecorrigeerd, echte namen — niet in git
 ├── entities/       # kandidatenlijsten per interview — niet in git
+├── qc/             # transcriptvergelijkingen
 └── output/         # gepseudonimiseerde transcripts + docx — niet in git
 ```
 
@@ -55,6 +72,7 @@ De volgorde is bindend. Elke stap draait los, per interview.
 |------|--------|:----------:|------|
 | 1 | `vtt_to_md.py` | | Teams `.vtt` → markdowntranscript |
 | 2 | — | ✅ | Pilot: kwaliteitscheck Teams-transcriptie |
+| 2b | `compare_transcripts.py` + `transcheck` (Ollama) | | Kwaliteitsscore Teams vs whisper.cpp + geprioriteerde verschillenlijst |
 | 3 | — | ✅ | Correctie tegen audio (mét echte namen) |
 | 4 | `find_entities.py` | | Kandidatenlijst identificatoren (spaCy) |
 | 5 | — | ✅ | Kandidatenlijst aanvullen (indirecte identificatoren) |
@@ -72,19 +90,24 @@ source .venv/bin/activate
 # 1. VTT → markdown (toon eerste 20 beurten voor de pilot)
 uv run scripts/vtt_to_md.py raw/i01.vtt -o transcripts/i01.md --preview 20
 
-# 3. transcripts/i01.md handmatig corrigeren tegen de audio
+# 2. transcripts controleren met behulp van Python en local LLM
+uv run scripts/compare_transcripts.py transcripts/i01.md raw/i01-cpp.txt -o qc/i01
+ollama run transcheck < qc/i01_diff.md > qc/i01_review.md
+uv run scripts/merge_whisper.py transcripts/i01.md raw/i01-cpp.txt
+
+# 3. transcripts/i01_gecorrigeerd.md + transcripts/i01_gemarkeerd.md handmatig corrigeren tegen de audio
 
 # 4. Kandidatenlijst identificatoren
-uv run scripts/find_entities.py transcripts/i01.md
+uv run scripts/find_entities.py transcripts/i01_gecorrigeerd.md
 
 # 5. entities/entities_i01.csv reviewen en aanvullen, daarna verwerken in mapping.csv
 uv run scripts/build_mapping.py
 
 # 6. Pseudonimiseren (+ automatische restscan)
-uv run scripts/pseudonymize.py transcripts/i01.md --mapping "mapping/mapping.csv"
+uv run scripts/pseudonymize.py transcripts/i01_gecorrigeerd.md --mapping "mapping/mapping.csv"
 
 # 7. Export naar docx voor Atlas.ti
-uv run scripts/export_docx.py output/i01_pseudo.md
+uv run scripts/export_docx.py output/i01_gecorrigeerd_pseudo.md
 ```
 
 ## Scripts
@@ -111,6 +134,38 @@ Ja, nou, opname gestart. Dag meneer ...
 
 Ik ben operationeel verantwoordelijk voor ...
 ```
+
+### `compare_transcripts.py` — stap 2b (optioneel, vereist whisper.cpp-output)
+
+Vergelijkt het Teams-transcript (stap 1) met een whisper.cpp-transcript en
+berekent deterministisch een gelijkenispercentage en WER (Word Error Rate,
+whisper als referentie). Schrijft daarnaast `qc/<interview>_diff.md` met:
+
+- een frequentielijst van woorden die Teams structureel anders interpreteert;
+- alle verschillen op volgorde, met de dichtstbijzijnde Teams-timestamp en
+  context, als zoeklijst voor de handmatige correctie (stap 3).
+```bash
+uv run scripts/compare_transcripts.py transcripts/i01.md raw/i01-cpp.txt -o qc/i01
+```
+
+Het lokale Ollama-model `transcheck` beoordeelt de verschillentabel daarna:
+welke variant is waarschijnlijk correct, en welke verschillen zijn TRIVIAAL
+(spelling, spatiëring), TERM (vakjargon, namen) of BETEKENIS (inhoud verandert).
+Gesorteerd op prioriteit voor de audiocheck.
+
+```bash
+# eenmalig bouwen
+ollama create transcheck -f scripts/Modelfile.transcheck
+ 
+# per interview
+ollama run transcheck < qc/i01_diff.md > qc/i01_review.md
+```
+
+Let op:
+
+- Het **percentage komt uit het script**, niet uit het model; whisper is
+  referentie maar zelf ook niet foutloos. Behandel de lijst als zoeklijst,
+  niet als waarheid.
 
 ### `find_entities.py` — stap 4
 
@@ -178,7 +233,7 @@ krijgt grovere blokken terug.
 
 Hard, niet-onderhandelbaar:
 
-- **`mapping/`, `raw/` en `transcripts/` verlaten deze machine niet.**
+- **`mapping/`, `raw/`, `qc/` en `transcripts/` verlaten deze machine niet.**
 - Alleen bestanden uit **`output/`** mogen gedeeld worden, en pas **nadat de
   restscan uit stap 6 schoon is**.
 - **Geen transcripts (ook geen fragmenten) naar externe API's of clouddiensten.**
